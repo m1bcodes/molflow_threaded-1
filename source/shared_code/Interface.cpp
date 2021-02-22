@@ -1749,8 +1749,8 @@ bool Interface::ProcessMessage_shared(GLComponent *src, int message) {
 			if (AskToSave()) BuildPipe(5.0,5);
 			return true;
 		case MENU_TRIANGULATE:
-			if (AskToSave()) GeometryConverter::PolygonsToTriangles(this->worker.GetGeometry());
-			worker.Reload();
+			//if (AskToSave()) GeometryConverter::PolygonsToTriangles(this->worker.GetGeometry());
+			//worker.Reload();
 			return true;
 		case MENU_ABOUT:
 		{

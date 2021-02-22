@@ -4121,29 +4121,29 @@ void Geometry::SaveSTR(/*Dataport *dpHit*/ GlobalSimuState& results, bool saveSe
 }
 
 void Geometry::SaveSTL(FileWriter* f, GLProgress* prg) {
-	prg->SetMessage("Triangulating geometry...");
-	auto triangulatedGeometry = GeometryConverter::GetTriangulatedGeometry(this,prg);
-	prg->SetMessage("Saving STL file...");
-	f->Write("solid ");f->Write("\"");f->Write(GetName());f->Write("\"\n");
-	for (size_t i = 0;i < triangulatedGeometry.size();i++) {
-		prg->SetProgress((double)i / (double)triangulatedGeometry.size());
-		Facet* fac = triangulatedGeometry[i];
-		f->Write("\tfacet normal ");
-		f->Write(fac->sh.N.x);f->Write(fac->sh.N.y);f->Write(fac->sh.N.z,"\n");
-		f->Write("\t\touter loop\n");
-		for (size_t j = 0;j < fac->sh.nbIndex /*should be 3*/;j++) {
-			f->Write("\t\t\tvertex");
-			f->Write(GetVertex(fac->indices[j])->x);
-			f->Write(GetVertex(fac->indices[j])->y);
-			f->Write(GetVertex(fac->indices[j])->z, "\n");
-		}
-		f->Write("\t\tendloop\n\tendfacet\n");
-	}
-	f->Write("endsolid\n");
-	//Manually delete created facets
-	for (auto& f : triangulatedGeometry) {
-		SAFE_DELETE(f);
-	}
+	//prg->SetMessage("Triangulating geometry...");
+	//auto triangulatedGeometry = GeometryConverter::GetTriangulatedGeometry(this,prg);
+	//prg->SetMessage("Saving STL file...");
+	//f->Write("solid ");f->Write("\"");f->Write(GetName());f->Write("\"\n");
+	//for (size_t i = 0;i < triangulatedGeometry.size();i++) {
+	//	prg->SetProgress((double)i / (double)triangulatedGeometry.size());
+	//	Facet* fac = triangulatedGeometry[i];
+	//	f->Write("\tfacet normal ");
+	//	f->Write(fac->sh.N.x);f->Write(fac->sh.N.y);f->Write(fac->sh.N.z,"\n");
+	//	f->Write("\t\touter loop\n");
+	//	for (size_t j = 0;j < fac->sh.nbIndex /*should be 3*/;j++) {
+	//		f->Write("\t\t\tvertex");
+	//		f->Write(GetVertex(fac->indices[j])->x);
+	//		f->Write(GetVertex(fac->indices[j])->y);
+	//		f->Write(GetVertex(fac->indices[j])->z, "\n");
+	//	}
+	//	f->Write("\t\tendloop\n\tendfacet\n");
+	//}
+	//f->Write("endsolid\n");
+	////Manually delete created facets
+	//for (auto& f : triangulatedGeometry) {
+	//	SAFE_DELETE(f);
+	//}
 }
 
 void Geometry::SaveSuper(int s) {
