@@ -60,7 +60,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>CURL_STATICLIB;_MBCS;MOLFLOW;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\source\molflow_code;..\..\source\shared_code;..\..\include;..\..\include\windows_only;..\..\include\windows_only\png</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\source\molflow_code;..\..\source\shared_code;..\..\include;..\..\include\windows_only;..\..\include\windows_only\png;..\..\source\new_code</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -79,7 +79,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>CURL_STATICLIB;_MBCS;MOLFLOW;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\source\molflow_code;..\..\source\shared_code;..\..\include;..\..\include\windows_only;..\..\include\windows_only\png</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\source\molflow_code;..\..\source\shared_code;..\..\include;..\..\include\windows_only;..\..\include\windows_only\png;..\..\source\new_code</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -126,6 +126,7 @@
     <ClCompile Include="..\..\source\molflow_code\TimeSettings.cpp" />
     <ClCompile Include="..\..\source\molflow_code\TimewisePlotter.cpp" />
     <ClCompile Include="..\..\source\molflow_code\Viewer3DSettings.cpp" />
+    <ClCompile Include="..\..\source\new_code\FracturePoly.cpp" />
     <ClCompile Include="..\..\source\shared_code\AddVertex.cpp" />
     <ClCompile Include="..\..\source\shared_code\AlignFacet.cpp" />
     <ClCompile Include="..\..\source\shared_code\AppUpdater.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="..\..\source\molflow_code\TimeSettings.h" />
     <ClInclude Include="..\..\source\molflow_code\TimewisePlotter.h" />
     <ClInclude Include="..\..\source\molflow_code\Viewer3DSettings.h" />
+    <ClInclude Include="..\..\source\new_code\FracturePoly.h" />
     <ClInclude Include="..\..\source\shared_code\AddVertex.h" />
     <ClInclude Include="..\..\source\shared_code\AlignFacet.h" />
     <ClInclude Include="..\..\source\shared_code\AppUpdater.h" />
@@ -324,8 +326,16 @@
     <None Include="..\..\source\shared_code\GLApp\GLFileBox.cpp.obsolete" />
     <None Include="..\..\source\shared_code\GLApp\GLFileBox.h.obsolete" />
     <None Include="ClassDiagram.cd" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.72.0.0\build\boost.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.72.0.0\build\boost.targets'))" />
+  </Target>
 </Project>

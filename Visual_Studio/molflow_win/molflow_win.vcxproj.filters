@@ -354,6 +354,9 @@
     <ClCompile Include="..\..\source\shared_code\windows_only\WinProcess.cpp">
       <Filter>Source Files\shared_code</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\new_code\FracturePoly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\shared_code\AddVertex.h">
@@ -680,6 +683,9 @@
     <ClInclude Include="..\..\source\shared_code\GLApp\GLChart\AxisPanel.h">
       <Filter>Source Files\shared_code\GLApp\GLChart</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\new_code\FracturePoly.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\source\molflow_code\LICENSE">
@@ -692,5 +698,6 @@
       <Filter>Source Files\shared_code\GLApp</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

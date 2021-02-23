@@ -34,6 +34,8 @@ Full license text: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 #include "Clipper/clipper.hpp"
 
+#include "FracturePoly.h"
+
 #ifdef MOLFLOW
 #include "MolFlow.h"
 #include "MolflowTypes.h"
@@ -522,6 +524,12 @@ void Geometry::ClipPolygon(size_t id1, std::vector<std::vector<size_t>> clipping
 
 	//a new facet
 	size_t nbNewFacets = solution.ChildCount(); //Might be more than one if clipping facet splits subject to pieces
+
+	{
+		ClipperLib::Paths paths;
+		processClipperSolution(solution, paths);
+	}
+
 	facets = (Facet **)realloc(facets, (sh.nbFacet + nbNewFacets) * sizeof(Facet *));
 	//set selection
 	UnselectAll();
@@ -618,74 +626,74 @@ size_t Geometry::ExecuteClip(size_t& id1, std::vector<std::vector<size_t>>& clip
 
 	//The code below could identify holes in Molflow logic and convert them to Polygon/hole-subpolygon format.
 	//Turns out it wasn't necessary for the Clipper library to recognize holes, so we return to the original code above for simplicty
-	/*
+
 	//Identify holes in source facet
-	std::vector<size_t> existingVertices;
-	std::vector < std::vector<size_t> > holePaths; // list of list of vertices
-	bool skipNext = false;
-	for (size_t i1 = 0; i1 < facets[id1]->wp.nbIndex; i1++) {
-		if (skipNext) {
-			skipNext = false;
-			continue;
-		}
-		if (Contains(existingVertices, facets[id1]->indices[i1])) {
-			//Identify last occurrence of the same index (beginning of hole)
-			size_t holeStartIndex = Previous(i1, facets[id1]->wp.nbIndex);
-			while (facets[id1]->indices[holeStartIndex] != facets[id1]->indices[i1]) {
-				holeStartIndex = Previous(holeStartIndex, facets[id1]->wp.nbIndex);
-			}
-			std::vector<size_t> newHolePath;
-			for (int i2 = holeStartIndex; i2 != i1; i2 = Next(i2, facets[id1]->wp.nbIndex)) {
-				newHolePath.push_back(i2);
-			}
-			holePaths.push_back(newHolePath);
-			skipNext = true;
-		}
-		existingVertices.push_back(facets[id1]->indices[i1]);
-	}
+	//std::vector<size_t> existingVertices;
+	//std::vector < std::vector<size_t> > holePaths; // list of list of vertices
+	//bool skipNext = false;
+	//for (size_t i1 = 0; i1 < facets[id1]->wp.nbIndex; i1++) {
+	//	if (skipNext) {
+	//		skipNext = false;
+	//		continue;
+	//	}
+	//	if (Contains(existingVertices, facets[id1]->indices[i1])) {
+	//		//Identify last occurrence of the same index (beginning of hole)
+	//		size_t holeStartIndex = Previous(i1, facets[id1]->wp.nbIndex);
+	//		while (facets[id1]->indices[holeStartIndex] != facets[id1]->indices[i1]) {
+	//			holeStartIndex = Previous(holeStartIndex, facets[id1]->wp.nbIndex);
+	//		}
+	//		std::vector<size_t> newHolePath;
+	//		for (int i2 = holeStartIndex; i2 != i1; i2 = Next(i2, facets[id1]->wp.nbIndex)) {
+	//			newHolePath.push_back(i2);
+	//		}
+	//		holePaths.push_back(newHolePath);
+	//		skipNext = true;
+	//	}
+	//	existingVertices.push_back(facets[id1]->indices[i1]);
+	//}
 
 
-	
-	ClipperLib::Paths subj(1+ holePaths.size()), clip(clippingPaths.size());
+	//
+	//ClipperLib::Paths subj(1+ holePaths.size()), clip(clippingPaths.size());
 
-	size_t lastAdded = -1;
-	for (size_t i1 = 0; i1 < facets[id1]->wp.nbIndex; i1++) {
-		bool notPartOfHole = true;
-		for (auto& path : holePaths) {
-			for (auto& v : path) {
-				if (facets[id1]->indices[v] == facets[id1]->indices[i1]) {
-					notPartOfHole = false;
-					break;
-				}
-			}
-		}
-		if (notPartOfHole && facets[id1]->indices[i1]!=lastAdded) {
-			subj[0] << ClipperLib::IntPoint((int)(facets[id1]->vertices2[i1].u*1E6), (int)(facets[id1]->vertices2[i1].v*1E6));
-			lastAdded = facets[id1]->indices[i1];
-		}
-	}
+	//size_t lastAdded = -1;
+	//for (size_t i1 = 0; i1 < facets[id1]->wp.nbIndex; i1++) {
+	//	bool notPartOfHole = true;
+	//	for (auto& path : holePaths) {
+	//		for (auto& v : path) {
+	//			if (facets[id1]->indices[v] == facets[id1]->indices[i1]) {
+	//				notPartOfHole = false;
+	//				break;
+	//			}
+	//		}
+	//	}
+	//	if (notPartOfHole && facets[id1]->indices[i1]!=lastAdded) {
+	//		subj[0] << ClipperLib::IntPoint((int)(facets[id1]->vertices2[i1].u*1E6), (int)(facets[id1]->vertices2[i1].v*1E6));
+	//		lastAdded = facets[id1]->indices[i1];
+	//	}
+	//}
 
-	for (size_t i1 = 0; i1 < holePaths.size(); i1++) {
-		for (size_t i2 : holePaths[i1]) {
-			subj[i1+1] << ClipperLib::IntPoint((int)(facets[id1]->vertices2[i2].u*1E6), (int)(facets[id1]->vertices2[i2].v*1E6));
-		}
-	}
+	//for (size_t i1 = 0; i1 < holePaths.size(); i1++) {
+	//	for (size_t i2 : holePaths[i1]) {
+	//		subj[i1+1] << ClipperLib::IntPoint((int)(facets[id1]->vertices2[i2].u*1E6), (int)(facets[id1]->vertices2[i2].v*1E6));
+	//	}
+	//}
 
-	for (size_t i3 = 0; i3 < clippingPaths.size(); i3++) {
-		for (size_t i2 = 0; i2 < clippingPaths[i3].size(); i2++) {
-			ProjectedPoint proj;
-			proj.globalId = clippingPaths[i3][i2];
-			proj.vertex2d = ProjectVertex(vertices3[clippingPaths[i3][i2]], facets[id1]->wp.U, facets[id1]->wp.V, facets[id1]->wp.O);
-			clip[0] << ClipperLib::IntPoint((int)(proj.vertex2d.u*1E6), (int)(proj.vertex2d.v*1E6));
-			projectedPoints.push_back(proj);
-		}
-	}
-	ClipperLib::Clipper c;
-	c.AddPaths(subj, ClipperLib::ptSubject, true);
-	c.AddPaths(clip, ClipperLib::ptClip, true);
-	c.Execute(type, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
-	return solution.ChildCount();
-	*/
+	//for (size_t i3 = 0; i3 < clippingPaths.size(); i3++) {
+	//	for (size_t i2 = 0; i2 < clippingPaths[i3].size(); i2++) {
+	//		ProjectedPoint proj;
+	//		proj.globalId = clippingPaths[i3][i2];
+	//		proj.vertex2d = ProjectVertex(vertices3[clippingPaths[i3][i2]], facets[id1]->wp.U, facets[id1]->wp.V, facets[id1]->wp.O);
+	//		clip[0] << ClipperLib::IntPoint((int)(proj.vertex2d.u*1E6), (int)(proj.vertex2d.v*1E6));
+	//		projectedPoints.push_back(proj);
+	//	}
+	//}
+	//ClipperLib::Clipper c;
+	//c.AddPaths(subj, ClipperLib::ptSubject, true);
+	//c.AddPaths(clip, ClipperLib::ptClip, true);
+	//c.Execute(type, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
+	//return solution.ChildCount();
+
 }
 
 void Geometry::ClipPolygon(size_t id1, size_t id2, ClipperLib::ClipType type) {
