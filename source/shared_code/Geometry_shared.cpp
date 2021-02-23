@@ -522,13 +522,45 @@ void Geometry::ClipPolygon(size_t id1, std::vector<std::vector<size_t>> clipping
 	std::vector<ProjectedPoint> projectedPoints;
 	ExecuteClip(id1, clippingPaths, projectedPoints, solution, type); //Returns solution in a polygon/hole list, we have to convert it to a continous outline
 
-	//a new facet
-	size_t nbNewFacets = solution.ChildCount(); //Might be more than one if clipping facet splits subject to pieces
-
 	{
 		ClipperLib::Paths paths;
 		processClipperSolution(solution, paths);
+
+		size_t nbNewFacets = paths.size(); //Might be more than one if clipping facet splits subject to pieces
+		facets = (Facet**)realloc(facets, (sh.nbFacet + nbNewFacets) * sizeof(Facet*));
+		//set selection
+		UnselectAll();
+		std::vector<InterfaceVertex> newVertices;
+		for (size_t i = 0; i < nbNewFacets; i++) {
+			const ClipperLib::Path& path = paths[i];
+
+			size_t nbRegistered = 0;
+			size_t nbVertex = path.size();
+			Facet* f = new Facet(nbVertex);
+			for (size_t j = 0; j < path.size(); j++) {
+				Vector2d vert;
+				vert.u = 1E-6 * (double)path[j].X;
+				vert.v = 1E-6 * (double)path[j].Y;
+				RegisterVertex(f, vert, id1, projectedPoints, newVertices, nbRegistered++);
+			}
+			f->selected = true;
+			if (viewStruct != -1) f->sh.superIdx = viewStruct;
+			facets[sh.nbFacet + i] = f;
+		}
+		sh.nbFacet += nbNewFacets;
+		//vertices3 = (InterfaceVertex*)realloc(vertices3, sizeof(InterfaceVertex)*(wp.nbVertex + newVertices.size()));
+		vertices3.resize(sh.nbVertex + newVertices.size());
+		for (InterfaceVertex newVert : newVertices)
+			vertices3[sh.nbVertex++] = newVert;
+
+		InitializeGeometry();
+		mApp->UpdateFacetParams(true);
+		UpdateSelection();
+		return;
 	}
+
+	//a new facet
+	size_t nbNewFacets = solution.ChildCount(); //Might be more than one if clipping facet splits subject to pieces
 
 	facets = (Facet **)realloc(facets, (sh.nbFacet + nbNewFacets) * sizeof(Facet *));
 	//set selection
