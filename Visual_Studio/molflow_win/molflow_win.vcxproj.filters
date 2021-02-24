@@ -357,6 +357,9 @@
     <ClCompile Include="..\..\source\new_code\FracturePoly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\shared_code\ArrayFacet.cpp">
+      <Filter>Source Files\shared_code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\shared_code\AddVertex.h">
@@ -685,6 +688,9 @@
     </ClInclude>
     <ClInclude Include="..\..\source\new_code\FracturePoly.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\shared_code\ArrayFacet.h">
+      <Filter>Source Files\shared_code</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

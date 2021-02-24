@@ -48,6 +48,7 @@ class MoveVertex;
 class ScaleVertex;
 class ScaleFacet;
 class MoveFacet;
+class ArrayFacet;
 class ExtrudeFacet;
 class MirrorFacet;
 class CreateShape;
@@ -153,6 +154,7 @@ typedef struct {
 #define MENU_FACET_SPLIT   351
 #define MENU_FACET_LOFT          352
 #define MENU_FACET_INTERSECT     353
+#define MENU_FACET_ARRAY   354
 
 #define MENU_TOOLS_TEXPLOTTER  401
 #define MENU_TOOLS_PROFPLOTTER 402
@@ -400,6 +402,7 @@ public:
 	SelectTextureType  *selectTextureType;
 	ExtrudeFacet	   *extrudeFacet;
 	MoveFacet	  	   *moveFacet;
+	ArrayFacet         *arrayFacet;
 	ParticleLogger     *particleLogger;
 	MirrorFacet	       *mirrorFacet;
 	MirrorVertex       *mirrorVertex;

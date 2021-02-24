@@ -55,6 +55,7 @@ Full license text: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 #include "ScaleVertex.h"
 #include "ScaleFacet.h"
 #include "MoveFacet.h"
+#include "ArrayFacet.h"
 #include "CreateShape.h"
 #include "ExtrudeFacet.h"
 #include "MirrorFacet.h"
@@ -163,6 +164,7 @@ Interface::Interface() {
 	selectDialog = NULL;
 	selectTextureType = NULL;
 	moveFacet = NULL;
+	arrayFacet = NULL;
 	createShape = NULL;
 	extrudeFacet = NULL;
 	mirrorFacet = NULL;
@@ -824,6 +826,7 @@ void Interface::OneTimeSceneInit_shared_pre() {
 	menu->GetSubMenu("Facet")->Add("Align to ...", MENU_FACET_ALIGN);
 	menu->GetSubMenu("Facet")->Add("Extrude ...", MENU_FACET_EXTRUDE);
 	menu->GetSubMenu("Facet")->Add("Split ...", MENU_FACET_SPLIT);
+	menu->GetSubMenu("Facet")->Add("Array ...", MENU_FACET_ARRAY);
 	menu->GetSubMenu("Facet")->Add(NULL);
 	menu->GetSubMenu("Facet")->Add("Create shape...", MENU_FACET_CREATESHAPE);
 	menu->GetSubMenu("Facet")->Add("Create two facets' ...");
@@ -1081,6 +1084,7 @@ int Interface::RestoreDeviceObjects_shared() {
 	RVALIDATE_DLG(selectDialog);
 	RVALIDATE_DLG(selectTextureType);
 	RVALIDATE_DLG(moveFacet);
+	RVALIDATE_DLG(arrayFacet);
 	RVALIDATE_DLG(createShape);
 	RVALIDATE_DLG(extrudeFacet);
 	RVALIDATE_DLG(mirrorFacet);
@@ -1122,6 +1126,7 @@ int Interface::InvalidateDeviceObjects_shared() {
 	IVALIDATE_DLG(selectDialog);
 	IVALIDATE_DLG(selectTextureType);
 	IVALIDATE_DLG(moveFacet);
+	IVALIDATE_DLG(arrayFacet);
 	IVALIDATE_DLG(createShape);
 	IVALIDATE_DLG(extrudeFacet);
 	IVALIDATE_DLG(mirrorFacet);
@@ -1351,6 +1356,13 @@ bool Interface::ProcessMessage_shared(GLComponent *src, int message) {
 				splitFacet = new SplitFacet(geom, &worker);
 				splitFacet->SetVisible(true);
 			}
+			return true;
+		case MENU_FACET_ARRAY:
+			if (!arrayFacet || !arrayFacet->IsVisible()) {
+				SAFE_DELETE(arrayFacet);
+				arrayFacet = new ArrayFacet(geom, &worker);
+			}
+			arrayFacet->SetVisible(true);
 			return true;
 		case MENU_FACET_ROTATE:
 			if (!rotateFacet) rotateFacet = new RotateFacet(geom, &worker);

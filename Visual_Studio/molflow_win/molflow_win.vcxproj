@@ -131,6 +131,7 @@
     <ClCompile Include="..\..\source\shared_code\AddVertex.cpp" />
     <ClCompile Include="..\..\source\shared_code\AlignFacet.cpp" />
     <ClCompile Include="..\..\source\shared_code\AppUpdater.cpp" />
+    <ClCompile Include="..\..\source\shared_code\ArrayFacet.cpp" />
     <ClCompile Include="..\..\source\shared_code\ASELoader.cpp" />
     <ClCompile Include="..\..\source\shared_code\Buffer_shared.cpp" />
     <ClCompile Include="..\..\source\shared_code\BuildIntersection.cpp" />
@@ -237,6 +238,7 @@
     <ClInclude Include="..\..\source\shared_code\AddVertex.h" />
     <ClInclude Include="..\..\source\shared_code\AlignFacet.h" />
     <ClInclude Include="..\..\source\shared_code\AppUpdater.h" />
+    <ClInclude Include="..\..\source\shared_code\ArrayFacet.h" />
     <ClInclude Include="..\..\source\shared_code\ASELoader.h" />
     <ClInclude Include="..\..\source\shared_code\Buffer_shared.h" />
     <ClInclude Include="..\..\source\shared_code\BuildIntersection.h" />
