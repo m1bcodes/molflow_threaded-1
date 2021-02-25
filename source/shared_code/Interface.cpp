@@ -827,6 +827,7 @@ void Interface::OneTimeSceneInit_shared_pre() {
 	menu->GetSubMenu("Facet")->Add("Extrude ...", MENU_FACET_EXTRUDE);
 	menu->GetSubMenu("Facet")->Add("Split ...", MENU_FACET_SPLIT);
 	menu->GetSubMenu("Facet")->Add("Array ...", MENU_FACET_ARRAY);
+	menu->GetSubMenu("Facet")->Add("Union", MENU_FACET_UNION);
 	menu->GetSubMenu("Facet")->Add(NULL);
 	menu->GetSubMenu("Facet")->Add("Create shape...", MENU_FACET_CREATESHAPE);
 	menu->GetSubMenu("Facet")->Add("Create two facets' ...");
@@ -1363,6 +1364,18 @@ bool Interface::ProcessMessage_shared(GLComponent *src, int message) {
 				arrayFacet = new ArrayFacet(geom, &worker);
 			}
 			arrayFacet->SetVisible(true);
+			return true;
+		case MENU_FACET_UNION:
+			if (AskToReset()) {
+				geom->FacetsUnion();
+				// Send to sub process
+				try { 
+					worker.Reload(); 
+				}
+				catch (Error& e) {
+					GLMessageBox::Display(e.GetMsg(), "Error", GLDLG_OK, GLDLG_ICONERROR);
+				}
+			}
 			return true;
 		case MENU_FACET_ROTATE:
 			if (!rotateFacet) rotateFacet = new RotateFacet(geom, &worker);

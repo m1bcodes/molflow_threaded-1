@@ -1061,6 +1061,83 @@ void Geometry::SwapNormal() {
 	SwapNormal(GetSelectedFacets());
 }
 
+void Geometry::FacetsUnion()
+{
+	auto selFacetIds = GetSelectedFacets();
+	if (selFacetIds.size() < 1) {
+		GLMessageBox::Display("Need at least one facet selected.", "Invalid selection", GLDLG_OK, GLDLG_ICONERROR);
+		return;
+	}
+	mApp->changedSinceSave = true;
+	ClipperLib::PolyTree solution;
+	std::vector<ProjectedPoint> projectedPoints;
+	ClipperLib::ClipType ctype = ClipperLib::ctUnion;
+
+	ClipperLib::Paths subj, clip;
+	ClipperLib::Clipper c;
+
+	const size_t id1 = selFacetIds.front();
+	{
+		ClipperLib::Path path;
+		for (size_t i1 = 0; i1 < facets[id1]->sh.nbIndex; i1++) {
+			path << ClipperLib::IntPoint((int)(facets[id1]->vertices2[i1].u * 1E6), (int)(facets[id1]->vertices2[i1].v * 1E6));
+		}
+		c.AddPath(path, ClipperLib::ptSubject, true);
+	}
+
+	for (size_t isel = 1; isel < selFacetIds.size(); isel++) {
+		std::vector<std::vector<size_t>>  clippingPaths = { facets[selFacetIds[isel]]->indices };
+		ClipperLib::Path path;
+		for (size_t i3 = 0; i3 < clippingPaths.size(); i3++) {
+			for (size_t i2 = 0; i2 < clippingPaths[i3].size(); i2++) {
+				ProjectedPoint proj;
+				proj.globalId = clippingPaths[i3][i2];
+				proj.vertex2d = ProjectVertex(vertices3[clippingPaths[i3][i2]], facets[id1]->sh.U,
+					facets[id1]->sh.V, facets[id1]->sh.O);
+				path << ClipperLib::IntPoint((int)(proj.vertex2d.u * 1E6), (int)(proj.vertex2d.v * 1E6));
+				projectedPoints.push_back(proj);
+			}
+		}
+		c.AddPath(path, ClipperLib::ptClip, true);
+	}
+
+	c.Execute(ctype, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
+
+	ClipperLib::Paths paths;
+	processClipperSolution(solution, paths);
+
+	size_t nbNewFacets = paths.size(); //Might be more than one if clipping facet splits subject to pieces
+	facets = (Facet**)realloc(facets, (sh.nbFacet + nbNewFacets) * sizeof(Facet*));
+	//set selection
+	UnselectAll();
+	std::vector<InterfaceVertex> newVertices;
+	for (size_t i = 0; i < nbNewFacets; i++) {
+		const ClipperLib::Path& path = paths[i];
+
+		size_t nbRegistered = 0;
+		size_t nbVertex = path.size();
+		Facet* f = new Facet(nbVertex);
+		for (size_t j = 0; j < path.size(); j++) {
+			Vector2d vert;
+			vert.u = 1E-6 * (double)path[j].X;
+			vert.v = 1E-6 * (double)path[j].Y;
+			RegisterVertex(f, vert, id1, projectedPoints, newVertices, nbRegistered++);
+		}
+		f->selected = true;
+		if (viewStruct != -1) f->sh.superIdx = viewStruct;
+		facets[sh.nbFacet + i] = f;
+	}
+	sh.nbFacet += nbNewFacets;
+	//vertices3 = (InterfaceVertex*)realloc(vertices3, sizeof(InterfaceVertex)*(wp.nbVertex + newVertices.size()));
+	vertices3.resize(sh.nbVertex + newVertices.size());
+	for (InterfaceVertex newVert : newVertices)
+		vertices3[sh.nbVertex++] = newVert;
+
+	InitializeGeometry();
+	mApp->UpdateFacetParams(true);
+	UpdateSelection();
+}
+
 void Geometry::RevertFlippedNormals() {
 	std::vector<size_t> flippedFacetList;
 	auto selectedFacetList = GetSelectedFacets();

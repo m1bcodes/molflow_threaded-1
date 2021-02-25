@@ -155,6 +155,7 @@ typedef struct {
 #define MENU_FACET_LOFT          352
 #define MENU_FACET_INTERSECT     353
 #define MENU_FACET_ARRAY   354
+#define MENU_FACET_UNION 355
 
 #define MENU_TOOLS_TEXPLOTTER  401
 #define MENU_TOOLS_PROFPLOTTER 402
