@@ -212,7 +212,7 @@ void MoveFacet::ProcessMessage(GLComponent *src,int message) {
 
 			if (mApp->AskToReset()){
 
-				geom->MoveSelectedFacets(dX,dY,dZ,towardsDirectionMode, distance, src==copyButton);
+				geom->MoveSelectedFacets(dX,dY,dZ, towardsDirectionMode, distance, src==copyButton);
 				work->Reload(); 
 				mApp->changedSinceSave = true;
 				mApp->UpdateFacetlistSelected();	

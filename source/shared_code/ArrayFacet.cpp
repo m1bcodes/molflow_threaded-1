@@ -49,7 +49,7 @@ extern SynRad*mApp;
 
 ArrayFacet::ArrayFacet(Geometry *g,Worker *w):GLWindow() {
 
-	int wD = 228;
+	int wD = 288;
 	int hD = 365;
 	directionPanel = new GLTitledPanel("In direction");
 	directionPanel->SetBounds(4, 111, 216, 187);
@@ -108,6 +108,32 @@ ArrayFacet::ArrayFacet(Geometry *g,Worker *w):GLWindow() {
 	dzLabel->SetBounds(8, 84, 20, 13);
 	Add(dzLabel);
 
+	{
+		const int x1 = 196;
+		nxLabel = new GLLabel("nX");
+		nxLabel->SetBounds(x1, 32, 16, 20);
+		Add(nxLabel);
+
+		nxText = new GLTextField(0, "1");
+		nxText->SetBounds(x1+20, 29, 60, 20);
+		Add(nxText);
+
+		nyLabel = new GLLabel("nY");
+		nyLabel->SetBounds(x1, 58, 16, 20);
+		Add(nyLabel);
+
+		nyText = new GLTextField(0, "1");
+		nyText->SetBounds(x1 + 20, 55, 60, 20);
+		Add(nyText);
+
+		nzLabel = new GLLabel("nZ");
+		nzLabel->SetBounds(x1, 84, 16, 20);
+		Add(nzLabel);
+
+		nzText = new GLTextField(0, "1");
+		nzText->SetBounds(x1 + 20, 81, 60, 20);
+		Add(nzText);
+	}
 	dirFacetCenterButton = new GLButton(0, "Facet center");
 	dirPanel->SetCompBounds(dirFacetCenterButton, 6, 60, 84, 20);
 	dirPanel->Add(dirFacetCenterButton);
@@ -144,13 +170,9 @@ ArrayFacet::ArrayFacet(Geometry *g,Worker *w):GLWindow() {
 	basePanel->SetCompBounds(baseStatusLabel, 7, 14, 61, 13);
 	basePanel->Add(baseStatusLabel);
 
-	copyButton = new GLButton(0, "Copy facets");
-	copyButton->SetBounds(120, 314, 84, 20);
+	copyButton = new GLButton(0, "Create array");
+	copyButton->SetBounds(18, 314, 84, 20);
 	Add(copyButton);
-
-	moveButton = new GLButton(0, "Create array");
-	moveButton->SetBounds(18, 314, 84, 20);
-	Add(moveButton);
 
 	SetTitle("Create facet array");
 	// Center dialog
@@ -179,11 +201,13 @@ ArrayFacet::ArrayFacet(Geometry *g,Worker *w):GLWindow() {
 void ArrayFacet::ProcessMessage(GLComponent *src,int message) {
 	double dX,dY,dZ,distance;
 	dX = dY = dZ = distance = 0.0; //To avoid runtime "uninitialized value" checks
+	int nX, nY, nZ;
+	nX = nY = nZ = 0;
 
 	switch(message) {
 	case MSG_BUTTON:
 
-		if (src==moveButton || src==copyButton) {
+		if (src==copyButton) {
 			if (geom->GetNbSelectedFacets()==0) {
 				GLMessageBox::Display("No facets selected","Nothing to move",GLDLG_OK,GLDLG_ICONERROR);
 				return;
@@ -200,6 +224,18 @@ void ArrayFacet::ProcessMessage(GLComponent *src,int message) {
 				GLMessageBox::Display("Invalid Z offset/direction","Error",GLDLG_OK,GLDLG_ICONERROR);
 				return;
 			}
+			if (!nxText->GetNumberInt(&nX) || nX <= 0) {
+				GLMessageBox::Display("Invalid nX count", "Error", GLDLG_OK, GLDLG_ICONERROR);
+				return;
+			}
+			if (!nyText->GetNumberInt(&nY) || nY <= 0) {
+				GLMessageBox::Display("Invalid nY count", "Error", GLDLG_OK, GLDLG_ICONERROR);
+				return;
+			}
+			if (!nzText->GetNumberInt(&nZ) || nZ <= 0) {
+				GLMessageBox::Display("Invalid nZ count", "Error", GLDLG_OK, GLDLG_ICONERROR);
+				return;
+			}
 			bool towardsDirectionMode = directionCheckBox->GetState() == 1;
 			if ( towardsDirectionMode && !distanceText->GetNumber(&distance) ) {
 				GLMessageBox::Display("Invalid offset distance","Error",GLDLG_OK,GLDLG_ICONERROR);
@@ -212,7 +248,7 @@ void ArrayFacet::ProcessMessage(GLComponent *src,int message) {
 
 			if (mApp->AskToReset()){
 
-				geom->MoveSelectedFacets(dX,dY,dZ,towardsDirectionMode, distance, src==copyButton);
+				geom->ArraySelectedFacets(dX,dY,dZ,nX,nY,nZ,towardsDirectionMode, distance, src==copyButton);
 				work->Reload(); 
 				mApp->changedSinceSave = true;
 				mApp->UpdateFacetlistSelected();	

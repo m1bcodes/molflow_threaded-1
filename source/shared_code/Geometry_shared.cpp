@@ -1702,15 +1702,15 @@ void Geometry::AlignFacets(std::vector<size_t> memorizedSelection, size_t source
 
 void Geometry::MoveSelectedFacets(double dX, double dY, double dZ, bool towardsDirectionMode, double distance, bool copy) {
 
-	GLProgress *prgMove = new GLProgress("Moving selected facets...", "Please wait");
+	GLProgress* prgMove = new GLProgress("Moving selected facets...", "Please wait");
 	prgMove->SetProgress(0.0);
 	prgMove->SetVisible(true);
 	auto selectedFacets = GetSelectedFacets();
 
 	Vector3d delta = Vector3d(dX, dY, dZ);
-	Vector3d translation = towardsDirectionMode ? distance*delta.Normalized() : delta ;
+	Vector3d translation = towardsDirectionMode ? distance * delta.Normalized() : delta;
 
-	if (translation.Norme()>0.0) {
+	if (translation.Norme() > 0.0) {
 		mApp->changedSinceSave = true;
 		if (copy) CloneSelectedFacets(); //move
 		selectedFacets = GetSelectedFacets(); //Update selection to cloned
@@ -1725,6 +1725,76 @@ void Geometry::MoveSelectedFacets(double dX, double dY, double dZ, bool towardsD
 				if (!alreadyMoved[ind]) {
 					vertices3[ind].SetLocation(vertices3[ind] + translation);
 					alreadyMoved[ind] = true;
+				}
+			}
+		}
+
+		InitializeGeometry();
+		//update textures
+		/*try {
+			for (int i = 0; i < wp.nbFacet; i++) if (facets[i]->selected) SetFacetTexture(i, facets[i]->tRatio, facets[i]->hasMesh);
+		}
+		catch (Error &e) {
+			GLMessageBox::Display(e.GetMsg(), "Error", GLDLG_OK, GLDLG_ICONERROR);
+			return;
+		}*/
+	}
+	prgMove->SetVisible(false);
+	SAFE_DELETE(prgMove);
+}
+
+void Geometry::ArraySelectedFacets(double dX, double dY, double dZ, int nX, int nY, int nZ, bool towardsDirectionMode, double distance, bool copy) {
+
+	GLProgress *prgMove = new GLProgress("Moving selected facets...", "Please wait");
+	prgMove->SetProgress(0.0);
+	prgMove->SetVisible(true);
+	auto selectedFacets = GetSelectedFacets();
+
+	Vector3d delta = Vector3d(dX, dY, dZ);
+	Vector3d translation = towardsDirectionMode ? distance*delta.Normalized() : delta ;
+
+
+	if (translation.Norme()>0.0) {
+		selectedFacets = GetSelectedFacets(); //Update selection to cloned
+		mApp->changedSinceSave = true;
+		double counter = 1.0;
+
+		for (int ix = 0; ix < nX; ix++) {
+			for (int iy = 0; iy < nY; iy++) {
+				for (int iz = 0; iz < nZ; iz++) {
+
+					Vector3d dr(translation.x * ix, translation.y * iy, translation.z * iz);
+					std::vector<InterfaceVertex> newVertices;		//vertices that we create
+					std::vector<size_t> newIndices(sh.nbVertex);    //which new vertex was created from this old one
+					std::vector<bool> alreadyMoved(sh.nbVertex, false);
+
+					for (const auto& sel : selectedFacets) {
+						counter += 1.0;
+						prgMove->SetProgress(counter / (nX * nY * nZ * selectedFacets.size()));
+						for (const auto& ind : facets[sel]->indices) {
+							if (!alreadyMoved[ind]) {
+								newIndices[ind] = sh.nbVertex + newVertices.size(); //remember clone's index
+								Vector3d v3 = vertices3[ind] + dr;
+								InterfaceVertex v(vertices3[ind]);
+								v.SetLocation(v3);
+								newVertices.push_back(InterfaceVertex(v)); //create clone
+								alreadyMoved[ind] = true;
+							}
+						}
+						vertices3.insert(vertices3.end(), newVertices.begin(), newVertices.end());
+						sh.nbVertex = vertices3.size();
+
+						facets = (Facet**)realloc(facets, (sh.nbFacet + selectedFacets.size()) * sizeof(Facet*)); //make space for new facets
+						for (size_t i = 0; i < selectedFacets.size(); i++) {
+							facets[sh.nbFacet + i] = new Facet(facets[selectedFacets[i]]->sh.nbIndex); //create new facets
+							facets[sh.nbFacet + i]->CopyFacetProperties(facets[selectedFacets[i]], false); //get properties
+							//replace indices with clones
+							for (size_t j = 0; j < facets[selectedFacets[i]]->sh.nbIndex; j++) {
+								facets[sh.nbFacet + i]->indices[j] = newIndices[facets[selectedFacets[i]]->indices[j]];
+							}
+						}
+						sh.nbFacet += selectedFacets.size();
+					}
 				}
 			}
 		}

@@ -57,6 +57,14 @@ private:
   GLLabel	*cmLabelZ;
   GLTextField	*zText;
   GLLabel	*dzLabel;
+  
+  GLLabel* nxLabel;
+  GLTextField* nxText;
+  GLLabel* nyLabel;
+  GLTextField* nyText;
+  GLLabel* nzLabel;
+  GLTextField* nzText;
+
   GLTitledPanel	*directionPanel;
   GLButton	*dirFacetCenterButton;
   GLButton	*dirVertexButton;
@@ -68,7 +76,6 @@ private:
   GLLabel	*directionStatusLabel;
   GLLabel	*baseStatusLabel;
   GLButton	*copyButton;
-  GLButton	*moveButton;
   GLTitledPanel	*dirPanel;
   GLTitledPanel	*basePanel;
 
