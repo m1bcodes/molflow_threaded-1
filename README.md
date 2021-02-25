@@ -1,4 +1,11 @@
 # MolFlow+
+
+# Changes made in this fork:
+* Improved "Create two shapes' ..." function: holes are now better handled by using boost::geometry
+* New function: facet array: creates a rectangular array of selected facets.
+* Union function: creates a union of all selected facets. If facets do not overlap, additional facets are created.
+
+
 A Monte Carlo simulator for Ultra High Vacuum systems
 
 **Authors:** Marton ADY, Pascal Rene BAEHR, Roberto KERSEVAN, Jean-Luc PONS  
